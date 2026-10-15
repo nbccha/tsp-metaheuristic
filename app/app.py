@@ -466,6 +466,8 @@ elif method == "Input manual":
 elif method == "Upload Excel/CSV":
     up = sb.file_uploader("File", type=["xlsx", "xls", "csv"])
 
+
+
     if up is not None:
         try:
             if up.name.lower().endswith(".csv"):
@@ -714,9 +716,30 @@ elif method == "Input manual":
         key="manual",
     )
 
+
 if df is None:
-    st.info("Lengkapi input data di sidebar terlebih dahulu.")
+    if method == "Upload Excel/CSV":
+        st.info(
+            "### Format file yang diperlukan\n\n"
+            "Unggah file melalui sidebar di sebelah kiri.\n\n"
+            "**Format:** `.xlsx`, `.xls`, atau `.csv`.\n\n"
+            "Satu baris mewakili satu kota. File harus memiliki "
+            "minimal dua kolom numerik berbeda untuk koordinat X dan Y.\n\n"
+            "**Contoh tabel:**\n\n"
+            "| City | X | Y |\n"
+            "|---|---:|---:|\n"
+            "| A | 10 | 25 |\n"
+            "| B | 30 | 15 |\n"
+            "| C | 45 | 40 |\n\n"
+            "Nama kolom bebas. Pilih kolom X dan Y setelah upload. "
+            "Kolom ID kota opsional. Baris pertama sebaiknya berisi "
+            "nama kolom."
+        )
+    else:
+        st.info("Lengkapi input data di sidebar terlebih dahulu.")
+
     st.stop()
+
 
 df = df.dropna(subset=["X", "Y"]).reset_index(drop=True)
 
