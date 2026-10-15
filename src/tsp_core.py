@@ -35,6 +35,210 @@ def nearest_neighbor(D, s):
     return r
 
 
+def nearest_neighbor_variation(D, s):
+    """Nearest Neighbor variation that extends either end of an open path.
+
+    Start with node ``s``. At each step, connect the closest unvisited node
+    to either the left or right endpoint of the current path. Ties are
+    resolved deterministically by node index, then preferring the left end.
+    The returned route contains each node once; ``length`` closes the tour.
+    """
+    D = np.asarray(D)
+    n = len(D)
+    if D.ndim != 2 or D.shape[0] != D.shape[1]:
+        raise ValueError("D harus berupa matriks jarak persegi.")
+    if not 0 <= int(s) < n:
+        raise ValueError(f"Starting node di luar rentang: {s}.")
+
+    route = [int(s)]
+    unvisited = set(range(n)) - {int(s)}
+
+    while unvisited:
+        # Tuple order makes ties deterministic: distance, city index,
+        # then endpoint (left=0 before right=1).
+        candidates = []
+        left_endpoint = route[0]
+        right_endpoint = route[-1]
+        for city in sorted(unvisited):
+            candidates.append((float(D[city, left_endpoint]), city, 0))
+            candidates.append((float(D[city, right_endpoint]), city, 1))
+
+        _, city, endpoint = min(candidates)
+        if endpoint == 0:
+            route.insert(0, city)
+        else:
+            route.append(city)
+        unvisited.remove(city)
+
+    # The result is a closed TSP tour, so cyclic rotation preserves its edges.
+    # Rotate the representation back to the selected seed for consistent UI.
+    seed_position = route.index(int(s))
+    return route[seed_position:] + route[:seed_position]
+
+
+def general_insertion(D, s):
+    """General Insertion (GI) following the lecture-slide procedure.
+
+    1. Start with city ``s`` and its nearest city to form a 2-city subtour.
+    2. Select an unvisited city (lowest index is used for deterministic runs).
+    3. Insert it on the tour edge with the minimum incremental cost:
+       D[i, k] + D[k, j] - D[i, j].
+
+    The lecture slide does not specify a selection rule for the unvisited
+    city at step 2, so choosing the lowest available index makes this base
+    implementation reproducible. GI with Variation is implemented separately.
+    """
+    D = np.asarray(D, dtype=float)
+    if D.ndim != 2 or D.shape[0] != D.shape[1]:
+        raise ValueError("D harus berupa matriks jarak persegi.")
+
+    n = len(D)
+    if n == 0:
+        return []
+    if not 0 <= int(s) < n:
+        raise ValueError(f"Starting node di luar rentang: {s}.")
+
+    start = int(s)
+    unvisited = set(range(n)) - {start}
+    if not unvisited:
+        return [start]
+
+    # Slide initialization: choose the closest city to the starting city.
+    first = min(unvisited, key=lambda city: (float(D[start, city]), city))
+    route = [start, first]
+    unvisited.remove(first)
+
+    while unvisited:
+        # Select a city not yet in the tour. The slide leaves this choice open.
+        city = min(unvisited)
+
+        # Find the edge with minimum incremental insertion cost.
+        best_position = min(
+            range(len(route)),
+            key=lambda pos: (
+                float(
+                    D[route[pos], city]
+                    + D[city, route[(pos + 1) % len(route)]]
+                    - D[route[pos], route[(pos + 1) % len(route)]]
+                ),
+                pos,
+            ),
+        )
+        route.insert(best_position + 1, city)
+        unvisited.remove(city)
+
+    return route
+
+
+def general_insertion_variation(D, s, selection="Nearest to tour", rng=None):
+    """General Insertion with selectable city-selection variation.
+
+    The initial subtour is ``s -> nearest(s) -> s``. At every following
+    step, the selected unvisited node is inserted at the edge that minimizes
+    D[i, k] + D[k, j] - D[i, j]. Supported selection policies:
+
+    - ``Nearest to tour``: node closest to any node already in the tour.
+    - ``Farthest from tour``: node whose closest tour node is farthest away.
+    - ``Arbitrary``: seeded random unvisited node.
+    - ``Maximum regret``: node with the largest gap between its two best
+      insertion costs, inserted at its cheapest position.
+    - ``Cheapest insertion (joint)``: jointly select the node and edge with
+      the smallest insertion-cost increase (CI-style variant).
+
+    The selection policy is explicit because the lecture slide defines the
+    general framework but does not prescribe every possible variation.
+    """
+    D = np.asarray(D)
+    n = len(D)
+    if D.ndim != 2 or D.shape[0] != D.shape[1]:
+        raise ValueError("D harus berupa matriks jarak persegi.")
+    if n == 0:
+        return []
+    if not 0 <= int(s) < n:
+        raise ValueError(f"Starting node di luar rentang: {s}.")
+
+    valid_policies = {
+        "Nearest to tour",
+        "Farthest from tour",
+        "Arbitrary",
+        "Maximum regret",
+        "Cheapest insertion (joint)",
+    }
+    if selection not in valid_policies:
+        raise ValueError(f"GI selection policy tidak dikenal: {selection}")
+    if rng is None:
+        rng = np.random.default_rng(0)
+
+    start = int(s)
+    unvisited = set(range(n)) - {start}
+    if not unvisited:
+        return [start]
+
+    # Slide's initialization: choose the closest node to the starting node.
+    first = min(unvisited, key=lambda city: (float(D[start, city]), city))
+    route = [start, first]
+    unvisited.remove(first)
+
+    def insertion_cost(city, pos):
+        i = route[pos]
+        j = route[(pos + 1) % len(route)]
+        return float(D[i, city] + D[city, j] - D[i, j])
+
+    while unvisited:
+        # Cache each city's cheapest insertion position and cost.
+        best_position = {}
+        ordered_costs = {}
+        for city in sorted(unvisited):
+            position_costs = [
+                (insertion_cost(city, pos), pos)
+                for pos in range(len(route))
+            ]
+            position_costs.sort(key=lambda item: (item[0], item[1]))
+            ordered_costs[city] = position_costs
+            best_position[city] = position_costs[0]
+
+        if selection == "Cheapest insertion (joint)":
+            # Select both the city and edge by minimum incremental cost.
+            _, city, pos = min(
+                (cost, city, pos)
+                for city in sorted(unvisited)
+                for cost, pos in ordered_costs[city][:1]
+            )
+        elif selection == "Nearest to tour":
+            city = min(
+                unvisited,
+                key=lambda c: (min(float(D[c, node]) for node in route), c),
+            )
+            _, pos = best_position[city]
+        elif selection == "Farthest from tour":
+            city = min(
+                unvisited,
+                key=lambda c: (-min(float(D[c, node]) for node in route), c),
+            )
+            _, pos = best_position[city]
+        elif selection == "Arbitrary":
+            city = int(rng.choice(sorted(unvisited)))
+            _, pos = best_position[city]
+        else:  # Maximum regret insertion
+            def regret(city_id):
+                costs = ordered_costs[city_id]
+                # For a 2-node subtour, both cyclic edges still yield two
+                # candidate positions, so a second cost is available.
+                second_cost = costs[1][0] if len(costs) > 1 else costs[0][0]
+                return second_cost - costs[0][0]
+
+            city = max(
+                unvisited,
+                key=lambda c: (regret(c), -c),
+            )
+            _, pos = best_position[city]
+
+        route.insert(pos + 1, city)
+        unvisited.remove(city)
+
+    return route
+
+
 def insertion(D, s, kind, rng):
     """NI: nearest, CI: cheapest, FI: farthest, AI: arbitrary insertion."""
     left = set(range(len(D))) - {s}
