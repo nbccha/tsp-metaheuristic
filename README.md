@@ -1,190 +1,252 @@
-# TSP Metaheuristic: SA, Tabu Search, and VNS
+# TSP Metaheuristic: Simulated Annealing, Tabu Search, dan VNS
 
-Aplikasi optimasi **Traveling Salesman Problem (TSP)** berbasis Streamlit untuk membangun, mengoptimalkan, dan membandingkan rute menggunakan tiga algoritma metaheuristik: **Simulated Annealing (SA), Tabu Search (TS), dan Variable Neighborhood Search (VNS)**.
+Aplikasi berbasis **Streamlit** untuk menyelesaikan permasalahan *Traveling Salesman Problem* (TSP) menggunakan tiga algoritma metaheuristik: **Simulated Annealing (SA), Tabu Search (TS), dan Variable Neighborhood Search (VNS)**.
 
-Project ini mendukung input data fleksibel, visualisasi rute, analisis konvergensi, perbandingan kualitas solusi, serta eksperimen multi-run untuk mengevaluasi performa algoritma berdasarkan data aktual.
+Aplikasi ini mendukung pembentukan solusi awal, optimasi rute, visualisasi, analisis konvergensi, perbandingan kinerja algoritma, dan pengujian berulang untuk mengevaluasi kualitas solusi serta waktu komputasi berdasarkan hasil aktual.
 
-## Key Features
+## Fitur Utama
 
-- **Flexible Input:** input manual, klik kanvas X–Y, generate koordinat acak, upload Excel/CSV, dan dataset contoh.
-- **Distance Metrics:** Euclidean dan Manhattan.
-- **Initial Solution:** Nearest Neighbor (NN), Nearest Insertion (NI), Cheapest Insertion (CI), Farthest Insertion (FI), Arbitrary Insertion (AI), dan rute manual.
-- **Local Search:** 2-opt dengan strategi First Improvement atau Best Improvement.
-- **Simulated Annealing:** optimasi berbasis probabilitas penerimaan Metropolis dan penurunan suhu.
-- **Tabu Search:** pencarian neighborhood dengan tabu list FIFO dan aspiration criterion.
-- **Variable Neighborhood Search:** eksplorasi bergantian menggunakan Swap, Insertion, dan 2-opt, dilengkapi shaking serta opsi local search.
-- **Performance Comparison:** perbandingan best distance, runtime, jumlah iterasi, dan struktur rute SA, TS, serta VNS.
-- **Convergence & Analysis:** grafik konvergensi, iteration log, analisis improvement, pembaruan solusi terbaik, dan kesamaan edge.
-- **Multi-run & Export:** statistik eksperimen berulang serta ekspor rute, log, distance matrix, dan grafik ke CSV/PNG.
+- **Input Data:** menambahkan kota melalui klik kanvas X–Y, membuat koordinat acak, mengedit tabel secara manual, mengunggah CSV/Excel, dan menggunakan dataset contoh.
+- **Perhitungan Jarak:** memilih metrik Euclidean atau Manhattan.
+- **Pembentukan Solusi Awal:** menggunakan Nearest Neighbor (NN), Nearest Insertion (NI), Cheapest Insertion (CI), Farthest Insertion (FI), Arbitrary Insertion (AI), atau rute manual.
+- **Pencarian Lokal:** menerapkan 2-opt pada solusi awal atau melakukan perbaikan rute setelah optimasi.
+- **Simulated Annealing:** menerima solusi berdasarkan perubahan jarak, probabilitas Metropolis, dan penurunan suhu.
+- **Tabu Search:** mengeksplorasi solusi tetangga menggunakan tabu list FIFO dan kriteria aspirasi.
+- **Variable Neighborhood Search:** mengganti struktur lingkungan pencarian menggunakan Swap, Insertion, dan 2-opt, dilengkapi mekanisme pengguncangan solusi dan opsi pencarian lokal.
+- **Perbandingan Algoritma:** membandingkan jarak terbaik, waktu komputasi, jumlah iterasi, dan struktur rute SA, TS, serta VNS.
+- **Analisis Konvergensi:** menampilkan perubahan jarak terbaik berdasarkan riwayat optimasi aktual.
+- **Analisis Hasil:** menyajikan kualitas solusi, peningkatan jarak, waktu komputasi, pembaruan solusi terbaik, dan kesamaan sisi rute dalam enam kartu informasi.
+- **Pengujian Berulang:** mengevaluasi rata-rata, simpangan baku, dan konsistensi hasil antarrun.
+- **Ekspor Hasil:** menyimpan visualisasi rute, perbandingan rute, grafik konvergensi, detail rute, log iterasi, dan matriks jarak.
 
-## Project Structure
+## Struktur Proyek
 
 ```text
 TSP-Metaheuristic/
 ├── app/
-│   └── app.py              # Streamlit interface and workflow
+│   └── app.py              # Antarmuka dan alur aplikasi Streamlit
 ├── src/
-│   └── tsp_core.py         # Distance functions and algorithms
+│   └── tsp_core.py         # Perhitungan jarak dan algoritma optimasi
 ├── data/
-│   └── data1.xlsx          # Example dataset
-├── docs/                   # Project documentation
+│   └── data1.xlsx          # Dataset contoh
+├── docs/                   # Dokumentasi proyek
 ├── .streamlit/
-│   └── config.toml         # Application theme
-├── requirements.txt
-└── README.md
+│   └── config.toml         # Konfigurasi tampilan aplikasi
+├── requirements.txt        # Daftar pustaka yang dibutuhkan
+└── README.md               # Dokumentasi utama
 ```
 
-**Core implementation**
+### Komponen Utama
 
-- `app/app.py`: input management, algorithm configuration, execution, visualization, comparison, and analysis.
-- `src/tsp_core.py`: distance calculation, construction heuristics, local search, SA, TS, ILS, and VNS.
-- `data/data1.xlsx`: example dataset using sheet `Sheet7`, containing Case I (25 cities), Case II (40 cities), and Case III (68 cities).
+- `app/app.py`: mengatur input data, konfigurasi algoritma, eksekusi optimasi, visualisasi, perbandingan hasil, dan analisis.
+- `src/tsp_core.py`: berisi fungsi perhitungan jarak, metode pembentukan solusi awal, pencarian lokal, SA, TS, ILS, dan VNS.
+- `data/data1.xlsx`: dataset contoh pada lembar kerja `Sheet7`, yang mencakup Case I (25 kota), Case II (40 kota), dan Case III (68 kota).
 
-## Tech Stack
+## Teknologi yang Digunakan
 
-Python · Streamlit · NumPy · Pandas · Matplotlib · Plotly · openpyxl
+- Python
+- Streamlit
+- NumPy
+- Pandas
+- Matplotlib
+- Plotly
+- openpyxl
 
-## Installation
+## Instalasi dan Menjalankan Aplikasi
 
-Python must be installed before running the application.
+Pastikan Python telah terpasang pada komputer.
 
-**1. Open a terminal in the project directory**
+**1. Buka terminal pada folder proyek**
 
 ```powershell
-cd "path\to\TSP-Metaheuristic"
+cd "path\ke\TSP-Metaheuristic"
 ```
 
-**2. Create and activate a virtual environment**
+**2. Buat dan aktifkan lingkungan virtual**
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
-Skip the first command if the virtual environment already exists.
+Jika lingkungan virtual sudah tersedia, cukup aktifkan tanpa membuatnya kembali.
 
-**3. Install dependencies**
+**3. Pasang pustaka yang dibutuhkan**
 
 ```powershell
 python -m pip install -r requirements.txt
 ```
 
-**4. Run the application**
+**4. Jalankan aplikasi**
 
 ```powershell
 python -m streamlit run app/app.py
 ```
 
-Open the local URL displayed in the terminal, usually `http://localhost:8501`.
+Buka alamat lokal yang ditampilkan pada terminal, biasanya:
 
-## Optimization Methods
+`http://localhost:8501`
 
-### 1. Simulated Annealing (SA)
+## Pengaturan dan Metode Optimasi
 
-SA explores the solution space by accepting improving solutions and occasionally accepting worse solutions to reduce the risk of becoming trapped in a local optimum.
+### 1. Data Kota dan Solusi Awal
 
-Acceptance probability:
+Data kota dapat dimasukkan melalui kanvas koordinat X–Y, pembuatan data acak, tabel manual, unggahan CSV/Excel, atau dataset contoh.
+
+Solusi awal dapat dibentuk menggunakan heuristik NN, NI, CI, FI, dan AI, atau ditentukan secara manual. Rute manual harus memuat seluruh kota tepat satu kali.
+
+Aplikasi mendukung maksimal 200 kota. Untuk dataset contoh, pengguna dapat memilih kasus dan jumlah kota yang akan digunakan.
+
+### 2. Metrik Jarak dan Pencarian Lokal
+
+Aplikasi menyediakan dua metrik untuk menghitung jarak antar kota.
+
+**Euclidean Distance**
+
+Menghitung jarak garis lurus antara dua kota berdasarkan koordinat X dan Y.
+
+$$
+d(i,j)=\sqrt{(x_i-x_j)^2+(y_i-y_j)^2}
+$$
+
+**Manhattan Distance**
+
+Menghitung jarak berdasarkan jumlah selisih absolut koordinat X dan Y.
+
+$$
+d(i,j)=|x_i-x_j|+|y_i-y_j|
+$$
+
+Pencarian lokal menggunakan operator **2-opt** untuk membalik urutan segmen rute. Strategi perbaikan yang tersedia adalah *Best Improvement*, yang memilih perbaikan terbaik pada iterasi pencarian, dan *First Improvement*, yang menerima perbaikan pertama yang ditemukan.
+
+### 3. Simulated Annealing (SA)
+
+SA menerima solusi yang memperpendek rute dan dapat menerima solusi yang lebih buruk berdasarkan probabilitas Metropolis agar pencarian tidak mudah terjebak pada optimum lokal.
+
+Probabilitas penerimaan:
 
 ```text
-P(accept) = 1, if ΔE ≤ 0
-P(accept) = exp(-ΔE / T), if ΔE > 0
+P(accept) = 1                    jika ΔE <= 0
+P(accept) = exp(-ΔE / T)         jika ΔE > 0
 ```
 
-Temperature cooling:
+Penurunan suhu:
 
 ```text
-T_next = α × T
+T_next = alpha * T
 ```
 
-Main parameters: initial temperature, cooling rate (alpha), minimum temperature, iterations per temperature, maximum iterations, and neighborhood operator.
+Parameter yang tersedia meliputi suhu awal, laju pendinginan, suhu minimum, jumlah iterasi per suhu, iterasi maksimum, dan operator lingkungan pencarian.
 
-### 2. Tabu Search (TS)
+### 4. Tabu Search (TS)
 
-TS explores neighboring routes while using a bounded FIFO tabu list to discourage cycling between previously visited moves. The aspiration criterion allows a tabu move when it improves the best solution found so far.
+TS mengevaluasi solusi tetangga dengan menggunakan tabu list berukuran terbatas untuk mengurangi pengulangan langkah pencarian. Daftar tabu menggunakan mekanisme FIFO, sedangkan kriteria aspirasi memungkinkan langkah tabu diterima apabila menghasilkan solusi yang lebih baik daripada solusi terbaik sebelumnya.
 
-Main parameters: maximum iterations, tabu size, neighborhood size, neighborhood operator, and aspiration criterion.
+Parameter utama meliputi iterasi maksimum, ukuran tabu list, ukuran lingkungan pencarian, operator pencarian, dan status kriteria aspirasi.
 
-### 3. Variable Neighborhood Search (VNS)
+### 5. Variable Neighborhood Search (VNS)
 
-VNS systematically changes neighborhood structures to explore different regions of the solution space.
+VNS mengeksplorasi ruang solusi dengan mengganti struktur lingkungan pencarian secara sistematis.
 
-Supported neighborhoods:
+Struktur lingkungan yang didukung:
 
-- **Swap:** exchange the positions of two cities.
-- **Insertion:** move a city to another position in the route.
-- **2-opt:** reverse a segment of the route.
+- **Swap:** menukar posisi dua kota.
+- **Insertion:** memindahkan satu kota ke posisi lain dalam rute.
+- **2-opt:** membalik urutan suatu segmen rute.
 
-The search applies shaking, optionally performs 2-opt local search, evaluates the candidate, and returns to the first neighborhood when an improvement is found. Otherwise, it advances to the next neighborhood.
+Alur VNS dimulai dari solusi awal, melakukan pengguncangan (*shaking*), menjalankan pencarian lokal jika diaktifkan, lalu mengevaluasi kandidat berdasarkan total jarak. Jika kandidat lebih baik, solusi diperbarui dan pencarian kembali ke lingkungan pertama. Jika tidak, pencarian berlanjut ke lingkungan berikutnya.
 
-Main parameters: maximum iterations, `k_max`, selected neighborhoods, shaking method, local search option, and random seed.
+Parameter VNS meliputi:
 
-### Additional Methods
+- Iterasi maksimum.
+- Jumlah maksimum lingkungan (`k_max`).
+- Pilihan struktur lingkungan.
+- Metode pengguncangan.
+- Opsi pencarian lokal 2-opt.
+- *Random seed*.
 
-- **Construction heuristics:** generate an initial feasible route.
-- **2-opt Local Search:** improve the initial route and optionally polish an optimized route.
-- **Iterated Local Search (ILS):** optional optimization using 2-opt and double-bridge perturbation.
-- **Multi-run:** repeat SA, TS, and VNS with controlled seeds to assess solution quality and consistency.
+VNS menggunakan metrik jarak yang dipilih pengguna serta menyimpan solusi terbaik, waktu komputasi, jumlah iterasi, dan riwayat konvergensi.
 
-## Workflow
+### 6. Iterated Local Search (ILS)
 
-1. **Input Data:** select a data source and prepare city coordinates.
-2. **Configure Optimization:** choose the distance metric, initial solution, local search, algorithm parameters, random seed, and optional multi-run.
-3. **Review Optimization Summary:** verify the configuration before execution.
-4. **Run Optimization:** execute SA, TS, and VNS, with optional ILS.
-5. **Evaluate Results:** inspect the summary, routes, algorithm comparison, convergence, iteration logs, and analysis.
-6. **Export Results:** save supported route visualizations and experiment data.
+ILS tersedia sebagai metode opsional. Implementasinya menggunakan pencarian lokal 2-opt dan perturbasi *double-bridge* untuk mengeksplorasi solusi baru.
 
-## Results & Evaluation
+### 7. Pengujian Berulang dan Random Seed
 
-The application provides the following result views:
+Fitur pengujian berulang menjalankan SA, TS, dan VNS beberapa kali untuk mengukur konsistensi hasil.
 
-| View | Purpose |
+Statistik yang dapat dibandingkan meliputi:
+
+- Jarak terbaik dan terburuk.
+- Rata-rata jarak.
+- Simpangan baku.
+- Rata-rata waktu komputasi.
+
+Penggunaan *random seed* memungkinkan eksperimen diulang dengan data dan konfigurasi yang sama. Waktu komputasi tetap dapat berbeda karena kondisi perangkat.
+
+## Alur Penggunaan
+
+1. **Masukkan data kota** dan periksa koordinatnya.
+2. **Atur konfigurasi** jarak, solusi awal, pencarian lokal, SA, TS, VNS, dan parameter opsional.
+3. **Periksa ringkasan konfigurasi** sebelum menjalankan optimasi.
+4. **Tekan RUN OPTIMIZATION** untuk menjalankan algoritma.
+5. **Evaluasi hasil** melalui ringkasan, visualisasi rute, perbandingan, konvergensi, log, dan analisis.
+6. **Ekspor hasil** sesuai kebutuhan eksperimen atau dokumentasi penelitian.
+
+## Hasil dan Visualisasi
+
+| Bagian | Informasi |
 |---|---|
-| Summary | Initial distance, best distance, improvement, runtime, and iterations |
-| Routes | Visualization of initial and optimized routes |
-| Comparison | Pairwise route-edge overlap and distance differences |
-| Convergence | Best-distance history from actual algorithm execution |
-| Detail & Log | Route details, iteration logs, and distance matrix |
-| Analysis | Six information cards covering solution quality, runtime, convergence, and route structure |
-| Competition | Compare a user-created route with algorithm results |
-| Tabu Explorer | Inspect Tabu Search history for datasets of up to 12 cities |
-| Multi-run | Evaluate repeated-run statistics when enabled |
+| Ringkasan | Jarak awal, jarak terbaik, peningkatan, waktu komputasi, dan jumlah iterasi. |
+| Rute | Visualisasi rute awal dan hasil optimasi. |
+| Perbandingan | Kesamaan sisi rute dan perbedaan jarak antarpasangan algoritma. |
+| Konvergensi | Grafik jarak terbaik berdasarkan riwayat iterasi aktual. |
+| Detail & Log | Detail perjalanan antarkota, log iterasi, dan matriks jarak. |
+| Analisis | Enam kartu informasi yang membahas kualitas solusi, runtime, perbaikan, dan struktur rute. |
+| Kompetisi | Membandingkan rute buatan pengguna dengan hasil algoritma. |
+| Tabu Explorer | Menelusuri riwayat Tabu Search untuk dataset maksimal 12 kota. |
+| Pengujian Berulang | Statistik eksperimen jika fitur multi-run diaktifkan. |
 
-Supported exports include route images, comparison images, convergence plots (PNG), route details (CSV), iteration logs (CSV), and distance matrices (CSV).
+### Ekspor
 
-## Implementation Notes
+Hasil yang tersedia untuk diekspor meliputi:
 
-- A route is a **closed tour**: the return to the starting city is included in the total distance.
-- Each city must be visited exactly once.
-- The application supports up to 200 cities.
-- Euclidean distance uses straight-line coordinate distance; Manhattan distance uses the sum of absolute coordinate differences.
-- SA, TS, and VNS use the same input data, distance metric, and starting solution within a comparison run.
-- Random seeds support reproducible algorithmic experiments when data and parameters are unchanged. Runtime may vary between executions.
-- Best distance, improvement, iteration history, convergence, runtime, and edge overlap are derived from the executed algorithms, not hardcoded results.
-- No algorithm is guaranteed to outperform the others for every dataset or configuration.
+- **PNG:** visualisasi rute, perbandingan rute, dan grafik konvergensi.
+- **CSV:** detail rute, log iterasi, dan matriks jarak.
 
-## Troubleshooting
+## Catatan Implementasi
 
-**Streamlit command not found**
+- Rute TSP merupakan perjalanan tertutup: kota terakhir harus kembali ke kota awal.
+- Setiap kota harus dikunjungi tepat satu kali.
+- SA, TS, dan VNS menggunakan data kota, metrik jarak, serta solusi awal yang sama dalam satu eksekusi perbandingan.
+- Jika pencarian lokal setelah optimasi diaktifkan, hasil akhir turut memperhitungkan perbaikan 2-opt.
+- Jarak, peningkatan, runtime, iterasi, konvergensi, dan kesamaan sisi dihitung dari eksekusi algoritma.
+- Tidak ada algoritma yang dijamin selalu menghasilkan rute terbaik untuk setiap dataset. Kualitas solusi dipengaruhi data, parameter, seed, dan proses pencarian.
+
+## Pemecahan Masalah
+
+**Streamlit tidak dikenali**
 
 ```powershell
 python -m streamlit run app/app.py
 ```
 
-**Missing dependencies**
+**Pustaka belum terpasang**
 
 ```powershell
 python -m pip install -r requirements.txt
 ```
 
-**Example dataset not found**
+**Dataset contoh tidak ditemukan**
 
-Verify that `data/data1.xlsx` exists and contains the expected `Sheet7` worksheet.
+Pastikan file `data/data1.xlsx` tersedia dan memiliki lembar kerja `Sheet7`.
 
-**Configuration changed after optimization**
+**Hasil tidak sesuai dengan konfigurasi terbaru**
 
-Run **RUN OPTIMIZATION** again to refresh results for the current data and parameters.
+Jalankan kembali **RUN OPTIMIZATION** setelah mengubah data atau parameter agar hasil mencerminkan konfigurasi yang sedang digunakan.
 
 ---
 
-This project is intended for learning and experimentation in combinatorial optimization, with an emphasis on solution quality, convergence behavior, runtime, and reproducibility across SA, TS, and VNS.
+**Tujuan Proyek**
+
+Proyek ini dikembangkan sebagai sarana pembelajaran dan eksperimen optimasi kombinatorial, dengan fokus pada perbandingan kualitas rute, perilaku konvergensi, waktu komputasi, dan konsistensi hasil dari Simulated Annealing, Tabu Search, dan Variable Neighborhood Search.
