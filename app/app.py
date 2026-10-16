@@ -433,7 +433,7 @@ method = sb.radio(
         "Generate acak",
         "Input manual",
         "Upload Excel/CSV",
-        "Dataset contoh (data1.xlsx)",
+        "Dataset 6 Kota",
     ],
     label_visibility="collapsed",
 )
@@ -517,37 +517,14 @@ elif method == "Upload Excel/CSV":
             st.stop()
 
 else:
-    sample_path = os.path.join(ROOT, "data", "data1.xlsx")
-
-    if not os.path.exists(sample_path):
-        st.error(
-            "Dataset contoh data1.xlsx tidak ditemukan di folder data."
-        )
-        st.stop()
-
-    try:
-        xl = pd.ExcelFile(sample_path)
-        raw = xl.parse("Sheet7")
-        case = sb.selectbox("Case", ["Case I", "Case II", "Case III"])
-
-        df = raw[[f"{case} - x", f"{case} - y"]].dropna()
-        df.columns = ["X", "Y"]
-
-        if len(df) < 3:
-            st.error("Dataset contoh memiliki kurang dari tiga kota.")
-            st.stop()
-
-        k = sb.number_input(
-            "Pakai N node pertama (6 = ilustrasi Tabu Search)",
-            3, len(df), len(df),
-        )
-
-        df = df.head(int(k)).reset_index(drop=True)
-        df.insert(0, "City", range(1, len(df) + 1))
-
-    except Exception as exc:
-        st.error(f"Gagal membaca dataset contoh: {exc}")
-        st.stop()
+    # Dataset contoh: 6 kota tetap (tidak lagi membaca data1.xlsx).
+    sample_data = {
+        "City": [1, 2, 3, 4, 5, 6],
+        "X": [2.0, 652.0, 99.0, 681.0, 501.0, 188.0],
+        "Y": [33.0, 32.0, 368.0, 195.0, 106.0, 664.0],
+    }
+    df = pd.DataFrame(sample_data)
+    sb.caption("Dataset contoh: 6 kota (ilustrasi Tabu Search).")
 
 sb.divider()
 sb.markdown("**Algoritma**")
