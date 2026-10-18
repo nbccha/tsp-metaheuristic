@@ -936,8 +936,6 @@ with st.expander(
         )
 
         manual_ok = init_mode.startswith("Manual")
-        gi_selection = "Nearest to tour"
-
         if manual_ok:
             manual_txt = b.text_input(
                 "Rute manual (mis. 1,4,2,5,3,6)",
@@ -954,40 +952,15 @@ with st.expander(
                     "NI",
                     "CI",
                     "FI",
-                    "AI",
-                    "GI",
-                    "GI with Variation",
+                    "AI"
                 ],
                 help=(
                     "NN: nearest neighbor; NN with Variation: extend either "
                     "end of the open path; NI: nearest insertion; "
                     "CI: cheapest insertion; FI: farthest insertion; "
-                    "AI: arbitrary insertion; GI: general insertion; "
-                    "GI with Variation: general insertion with a configurable "
-                    "node-selection policy."
+                    "AI: arbitrary insertion"
                 ),
             )
-
-            if cons == "GI with Variation":
-                gi_selection = b.selectbox(
-                    "GI variation · pemilihan kota",
-                    [
-                        "Nearest to tour",
-                        "Farthest from tour",
-                        "Arbitrary",
-                        "Maximum regret",
-                        "Cheapest insertion (joint)",
-                    ],
-                    help=(
-                        "Nearest/Farthest memilih kota berdasarkan jarak ke "
-                        "tour; Arbitrary memilih kota belum dikunjungi secara "
-                        "acak; Maximum regret memprioritaskan kota dengan "
-                        "selisih dua biaya sisip terbaik terbesar; Cheapest "
-                        "insertion (joint) memilih kota dan sisi dengan "
-                        "kenaikan jarak terkecil. Posisi sisip menggunakan "
-                        "kenaikan jarak minimum."
-                    ),
-                )
 
     with setting_tabs["Local Search"]:
         a, b = st.columns(2)
@@ -1134,16 +1107,6 @@ def build_init():
         return nearest_neighbor(D, start)
     if cons == "NN with Variation":
         return nearest_neighbor_variation(D, start)
-    if cons == "GI":
-        return general_insertion(D, start)
-    if cons == "GI with Variation":
-        return general_insertion_variation(
-            D,
-            start,
-            selection=gi_selection,
-            rng=rng_init,
-        )
-
     return insertion(D, start, cons, rng_init)
 
 
@@ -1162,7 +1125,6 @@ cfg = dict(
     cons=cons,
     start_city=int(start_city),
     manual_txt=manual_txt,
-    gi_selection=gi_selection if cons == "GI with Variation" else None,
     seed=int(seed),
     use_2opt=use_2opt,
     ls_strategy=ls_strategy,
