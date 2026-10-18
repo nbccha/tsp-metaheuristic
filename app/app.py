@@ -928,22 +928,34 @@ with st.expander(
             ["Otomatis (heuristik)", "Manual (urutan dari user)"],
         )
 
-        start_city = b.number_input(
-            "Kota awal (nomor baris, mulai 1)",
-            1,
-            MAX_CITIES,
-            1,
-        )
-
         manual_ok = init_mode.startswith("Manual")
+
         if manual_ok:
+            # Mode manual: kota pertama pada rute menjadi titik awal.
+            start_city = None
+
             manual_txt = b.text_input(
                 "Rute manual (mis. 1,4,2,5,3,6)",
                 "",
+                help=(
+                    "Masukkan ID setiap kota tepat satu kali, dipisahkan koma. "
+                    "Kota pertama menjadi titik awal dan titik akhir."
+                ),
             )
+
             cons = "NN"
+
         else:
+            # Mode otomatis: pengguna memilih kota awal dan heuristik.
+            start_city = b.number_input(
+                "Kota awal (nomor baris, mulai 1)",
+                min_value=1,
+                max_value=MAX_CITIES,
+                value=1,
+            )
+
             manual_txt = ""
+
             cons = b.selectbox(
                 "Construction heuristic",
                 [
@@ -952,15 +964,16 @@ with st.expander(
                     "NI",
                     "CI",
                     "FI",
-                    "AI"
+                    "AI",
                 ],
                 help=(
-                    "NN: nearest neighbor; NN with Variation: extend either "
-                    "end of the open path; NI: nearest insertion; "
-                    "CI: cheapest insertion; FI: farthest insertion; "
-                    "AI: arbitrary insertion"
+                    "NN: nearest neighbor; "
+                    "NN with Variation: extend either end of the open path; "
+                    "NI: nearest insertion; CI: cheapest insertion; "
+                    "FI: farthest insertion; AI: arbitrary insertion"
                 ),
             )
+
 
     with setting_tabs["Local Search"]:
         a, b = st.columns(2)
@@ -1077,7 +1090,31 @@ D = dist_matrix(P, metric)
 
 # ================= 3. SOLUSI AWAL DAN RINGKASAN =================
 
+
 def build_init():
+    if manual_ok:
+        ids = [item.strip() for item in manual_txt.split(",")]
+
+        if any(not item for item in ids):
+            raise ValueError(
+                "Rute manual tidak boleh memiliki ID kota kosong."
+            )
+
+        try:
+            route = [names.index(item) for item in ids]
+        except ValueError:
+            raise ValueError(
+                "Rute manual berisi ID kota yang tidak ada pada dataset."
+            )
+
+        if len(route) != n or sorted(route) != list(range(n)):
+            raise ValueError(
+                "Rute manual harus memuat setiap kota tepat satu kali."
+            )
+
+        return route
+
+    # Bagian ini hanya dijalankan pada mode otomatis.
     start = int(start_city) - 1
 
     if start >= n:
@@ -1085,29 +1122,16 @@ def build_init():
             f"Kota awal ({int(start_city)}) melebihi jumlah kota ({n})."
         )
 
-    if manual_ok:
-        try:
-            ids = [item.strip() for item in manual_txt.split(",")]
-            route = [names.index(item) for item in ids]
-        except ValueError:
-            raise ValueError(
-                "Rute manual berisi ID kota yang tidak ada atau masih kosong."
-            )
-
-        if sorted(route) != list(range(n)):
-            raise ValueError(
-                "Rute manual harus memuat setiap kota tepat satu kali."
-            )
-
-        return route
-
     rng_init = np.random.default_rng(int(seed))
 
     if cons == "NN":
         return nearest_neighbor(D, start)
+
     if cons == "NN with Variation":
         return nearest_neighbor_variation(D, start)
+
     return insertion(D, start, cons, rng_init)
+
 
 
 try:
@@ -1123,7 +1147,7 @@ cfg = dict(
     metric=metric,
     init_mode=init_mode,
     cons=cons,
-    start_city=int(start_city),
+    start_city=int(start_city) if not manual_ok else None,
     manual_txt=manual_txt,
     seed=int(seed),
     use_2opt=use_2opt,
